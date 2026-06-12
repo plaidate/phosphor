@@ -1,0 +1,6 @@
+name=Phosphor: Gravity Wells
+author=sdwfrost
+description=Gravity-thrust missions. Beam the fuel, blast the bunkers, outrun the reactor.
+bundleID=com.sdwfrost.phosphor.gravitywells
+version=1.0
+buildNumber=1

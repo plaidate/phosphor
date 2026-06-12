@@ -1,0 +1,6 @@
+name=Phosphor: Touchdown
+author=sdwfrost
+description=Vector lunar landing. Crank the throttle, feather the descent.
+bundleID=com.sdwfrost.phosphor.touchdown
+version=1.0
+buildNumber=1
