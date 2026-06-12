@@ -28,12 +28,14 @@ build/$(1)/source: vec/*.lua games/$(1)/*
 	mkdir -p $$@ $(OUT)
 	cp vec/*.lua $$@/
 	cp -r games/$(1)/* $$@/
+	rm -f $$@/README.md $$@/screenshot.png
 	echo 'SMOKE_BUILD = false' > $$@/smokeflag.lua
 
 build/$(1)-smoke/source: vec/*.lua games/$(1)/*
 	mkdir -p $$@ $(OUT)
 	cp vec/*.lua $$@/
 	cp -r games/$(1)/* $$@/
+	rm -f $$@/README.md $$@/screenshot.png
 	echo 'SMOKE_BUILD = true' > $$@/smokeflag.lua
 
 .PHONY: $(1) $(1)-smoke

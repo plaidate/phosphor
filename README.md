@@ -1,40 +1,63 @@
 # Phosphor
 
-Twelve vector arcade games for the Playdate, sharing one library — white
+Twelve vector arcade games for the [Playdate](https://play.date) — white
 beam lines on black, the way the cabinets drew them. Every game is an
 original implementation of a classic vector-era design, with the crank
 doing what each cabinet's spinner, throttle, yoke, or wheel did.
 
+Each game links to its own page with controls, rules, and a screenshot.
+
 | Game | Inspired by the era of | Crank |
 |---|---|---|
-| Rubble | rock-field shooters (1979) | spin ship |
-| Welldiver | tube shooters (1981) | spinner |
-| Touchdown | lunar landers (1979) | throttle |
-| Ringkeep | ring-fortress duels (1980) | spin ship |
-| Border Circuit | arena racers (1981) | spinner |
-| Lifters | canister-defense (1980) | spin ship |
-| Webguard | web shooters (1983) | aim |
-| Treadline | first-person tank combat (1980) | turret |
-| Night Vector | first-person night driving (1979) | steering wheel |
-| Trenchfire | trench-run rail shooters (1983) | throttle |
-| Gravity Wells | gravity missions (1982) | spin ship |
-| Duelstar | two-ship duels (1977) | spin ship |
+| [Rubble](games/rubble/) | rock-field shooters (1979) | spin ship |
+| [Welldiver](games/welldiver/) | tube shooters (1981) | spinner |
+| [Touchdown](games/touchdown/) | lunar landers (1979) | throttle |
+| [Ringkeep](games/ringkeep/) | ring-fortress duels (1980) | spin ship |
+| [Border Circuit](games/bordercircuit/) | arena racers (1981) | spinner |
+| [Lifters](games/lifters/) | canister-defense (1980) | spin ship |
+| [Webguard](games/webguard/) | web shooters (1983) | aim |
+| [Treadline](games/treadline/) | first-person tank combat (1980) | turret |
+| [Night Vector](games/nightvector/) | first-person night driving (1979) | steering wheel |
+| [Trenchfire](games/trenchfire/) | trench-run rail shooters (1983) | throttle |
+| [Gravity Wells](games/gravitywells/) | gravity missions (1982) | spin ship |
+| [Duelstar](games/duelstar/) | two-ship duels (1977) | spin ship |
 
-## Layout
+## Playing (no build needed)
 
-- `vec/` — the shared library: 2D/3D vector math, a wireframe projection
-  camera with near-plane clipping, polyline shape models, a vector stroke
-  font, particles/debris, synth voices, a shared attract-mode cabinet, and
-  a built-in smoke-test harness.
-- `games/<name>/` — each game is a thin directory of modules on top.
+Ready-to-run copies of every game live in [`dist/`](dist/).
 
-## Building
+- **On a Playdate**: sign in at [play.date/account/sideload](https://play.date/account/sideload),
+  upload the `.pdx` you want (zip it first if your browser requires a
+  single file), then download it to the device from Settings → Games.
+- **In the Playdate Simulator** (ships with the
+  [Playdate SDK](https://play.date/dev/)): open the `.pdx` directly, or
+  drag it onto the Simulator window.
 
-Requires the Playdate SDK (`pdc` on PATH).
+High scores save per game on the device.
 
-    make <game>         # out/<Title>.pdx
-    make all            # everything
-    make <game>-smoke   # instrumented build (autopilot + telemetry)
-    tools/smoke.sh <game> [seconds] [until-grep]   # headless verification
+## Development
+
+Requires the Playdate SDK with `pdc` on your PATH.
+
+- `make <game>` — build one game to `out/<Title>.pdx`
+- `make all` — build everything
+- `make <game>-smoke` — instrumented build: the game plays itself
+  (autopilot) and writes telemetry counters, errors, and periodic
+  screenshots through the built-in harness
+- `tools/smoke.sh <game> [seconds] [until-grep]` — build the smoke
+  variant, run it headlessly in the Simulator, and report
+
+### Layout
+
+- `vec/` — the shared library: 2D vector math (`vec`), screen wrap
+  (`field`), polyline shape models (`shapes`), a 3D wireframe camera
+  with near-plane clipping (`proj`), a vector stroke font (`beams`),
+  particles and debris (`fx`), synth voices (`sfx`), the shared
+  attract-mode cabinet and high scores (`attract`), and the smoke-test
+  harness (`harness`).
+- `games/<name>/` — each game is a thin set of modules on the library;
+  `games/rubble/` is the reference for the structure.
+- The Makefile stages `vec/` + the game's files into `build/<name>/source`
+  and runs `pdc`; `dist/` holds committed release builds.
 
 MIT licensed.
