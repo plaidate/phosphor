@@ -1,0 +1,6 @@
+name=Phosphor: Ringkeep
+author=sdwfrost
+description=Vector ring-fortress siege. Crack the shields, dodge the fireball, slay the core.
+bundleID=com.sdwfrost.phosphor.ringkeep
+version=1.0
+buildNumber=1
