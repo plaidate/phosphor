@@ -12,22 +12,36 @@ import "lib"
 import "config"
 import "ships"
 import "galaxy"
+import "trade"
 import "gamestate"
 import "world"
 import "input"
 import "draw"
+import "docked"
 
 local function startGame()
     World.reset()
 end
 
 local function updatePlay(dt)
+    if G.docked then
+        Docked.update(dt)
+        return
+    end
     local roll, pitch, fire = Input.gather()
     G.roll, G.pitch, G.firing = roll, pitch, fire
     World.update(dt)
     if G.destroyed then
         Harness.count("gameovers")
         Attract.gameOver()
+    end
+end
+
+local function drawPlay()
+    if G.docked then
+        Docked.draw()
+    else
+        Draw.play()
     end
 end
 
@@ -61,7 +75,7 @@ Attract.setup({
     hooks = {
         start = startGame,
         update = updatePlay,
-        draw = Draw.play,
+        draw = drawPlay,
         drawAmbient = Draw.ambient,
         score = function() return G.score end,
     },
