@@ -68,6 +68,7 @@ function World.addPirate(gov)
         pos = { x = x, y = y, z = z }, m = lookMatrix(-x, -y, -z),
         speed = 200 + math.random(140), spin = 0,
         hp = HP[kind] or 16, maxhp = HP[kind] or 16, fireT = math.random() * 1.5,
+        miss = math.min(2, Ships[kind].missiles or 0),
     })
 end
 
@@ -233,6 +234,12 @@ local function updatePirate(o, dt)
         o.fireT = 0.5 + math.random()
         Sfx.blip(120)
     end
+    -- pirates that carry missiles occasionally launch one at the player
+    if o.miss > 0 and d < C.ENEMY_RANGE and dot > 0.9 and o.fireT <= 0 and math.random() < 0.15 then
+        World.spawnEnemyMissile(o)
+        o.miss = o.miss - 1
+        o.fireT = 2.5
+    end
     -- keep a stand-off distance so pirates orbit rather than ram constantly
     if d < 900 then o.speed = math.max(120, o.speed - 400 * dt) end
 end
@@ -262,6 +269,96 @@ function World.dock()
     Docked.enter()
 end
 
+-- ---- weapons: missiles, ECM, energy bomb -------------------------------
+
+local function indexOf(obj)
+    for k, v in ipairs(G.objs) do if v == obj then return k end end
+end
+
+-- the hostile nearest the centre of the reticle (missile lock)
+local function lockTarget()
+    local best, bz = nil, math.huge
+    for _, o in ipairs(G.objs) do
+        if o.kind == "pirate" and o.pos.z > 0 and o.pos.z < bz then
+            local sx, sy = Proj.point(o.pos.x, o.pos.y, o.pos.z)
+            if sx then
+                local dx, dy = sx - Proj.cx, sy - Proj.cy
+                if dx * dx + dy * dy < (C.LASER_HIT_PX * 2) ^ 2 then best, bz = o, o.pos.z end
+            end
+        end
+    end
+    return best
+end
+
+function World.firePlayerMissile()
+    if G.missiles <= 0 then return end
+    local t = lockTarget()
+    if not t then G.say("NO TARGET LOCK", 1.2); return end
+    G.missiles = G.missiles - 1
+    addObj({ kind = "pmissile", mesh = "missile", r = Ships.missile.r,
+        pos = { x = 0, y = -20, z = 80 }, m = Mat.identity(), speed = 1000,
+        target = t, life = 6 })
+    Sfx.zapSweep(); Harness.count("missiles")
+end
+
+function World.spawnEnemyMissile(o)
+    addObj({ kind = "emissile", mesh = "missile", r = Ships.missile.r,
+        pos = { x = o.pos.x, y = o.pos.y, z = o.pos.z }, m = Mat.identity(),
+        speed = 720, life = 8 })
+    Sfx.zapSweep(); G.say("INCOMING MISSILE", 1.2)
+end
+
+function World.useECM()
+    if not G.equip.ecm then return end
+    local n = 0
+    for i = #G.objs, 1, -1 do
+        if G.objs[i].kind == "emissile" then table.remove(G.objs, i); n = n + 1 end
+    end
+    Sfx.warble()
+    if n > 0 then G.say("E.C.M. SYSTEM", 1) end
+end
+
+function World.useBomb()
+    if not G.equip.bomb then return end
+    G.equip.bomb = false              -- an energy bomb is single use
+    for i = #G.objs, 1, -1 do
+        if G.objs[i].kind == "pirate" then destroyObj(G.objs[i], i) end
+    end
+    Fx.flash(0.4); Sfx.bigBoom(); G.say("ENERGY BOMB", 1.5)
+end
+
+-- home a missile on its target (player missiles) or the player (enemy missiles)
+function World.updateMissile(o, i, dt, forward)
+    local p = o.pos
+    local tx, ty, tz = 0, 0, 0
+    if o.kind == "pmissile" and o.target and indexOf(o.target) then
+        tx, ty, tz = o.target.pos.x, o.target.pos.y, o.target.pos.z
+    elseif o.kind == "pmissile" then
+        o.target = nil
+    end
+    local dx, dy, dz = tx - p.x, ty - p.y, tz - p.z
+    local l = len3(dx, dy, dz)
+    if l > 1 then
+        local s = o.speed * dt / l
+        p.x = p.x + dx * s; p.y = p.y + dy * s; p.z = p.z + dz * s
+    end
+    p.z = p.z - forward
+    o.life = o.life - dt
+    local hitR = (o.kind == "pmissile") and ((o.target and o.target.r or 120) + 140) or (PLAYER_R + 90)
+    if l < hitR then
+        if o.kind == "pmissile" then
+            if o.target then o.target.hp = -999; o.target.hitT = 0.1 end
+        else
+            local sx, sy = Proj.point(p.x, p.y, p.z)
+            if sx then Fx.burst(sx, sy, 12, 90) end
+            World.hurt(80)
+        end
+        table.remove(G.objs, indexOf(o) or i)
+    elseif o.life <= 0 or len3(p.x, p.y, p.z) > 16000 then
+        table.remove(G.objs, indexOf(o) or i)
+    end
+end
+
 function World.update(dt)
     -- the rotation the universe undergoes this frame: opposite the player's
     -- roll (about Z, the view axis) and pitch (about X)
@@ -279,6 +376,9 @@ function World.update(dt)
     if G.messageT > 0 then G.messageT = G.messageT - dt; if G.messageT <= 0 then G.message = nil end end
 
     if G.firing then fireLaser(dt) end
+    if G.fireMissile then G.fireMissile = false; World.firePlayerMissile() end
+    if G.useECM then G.useECM = false; World.useECM() end
+    if G.useBomb then G.useBomb = false; World.useBomb() end
 
     for i = #G.objs, 1, -1 do
         local o = G.objs[i]
@@ -286,6 +386,9 @@ function World.update(dt)
         -- swing the object around the player
         p.x, p.y, p.z = Mat.mulVec(R, p.x, p.y, p.z)
         if o.m then o.m = Mat.mul(R, o.m) end
+        if o.kind == "pmissile" or o.kind == "emissile" then
+            World.updateMissile(o, i, dt, forward)
+        else
         -- the object's own forward motion
         if o.speed ~= 0 and o.m then
             local vx, vy, vz = Mat.mulVec(o.m, 0, 0, o.speed)
@@ -305,8 +408,11 @@ function World.update(dt)
             tryDock(o, dist)
         end
 
+        -- a hostile whose hull is gone (laser or missile) dies here
+        if o.kind == "pirate" and o.hp <= 0 then
+            destroyObj(o, i)
         -- collision with the player (non-station; station handled in tryDock)
-        if o.kind ~= "station" and dist < o.r + PLAYER_R then
+        elseif o.kind ~= "station" and dist < o.r + PLAYER_R then
             if o.kind == "cargo" then
                 G.addScore(C.BOUNTY.canister or 0)
                 table.remove(G.objs, i)
@@ -322,6 +428,7 @@ function World.update(dt)
                 p.x, p.y, p.z = spawnPos(C.SPAWN_Z)
                 if o.m then o.m = lookMatrix(-p.x, -p.y, -p.z) end
             end
+        end
         end
     end
 end
