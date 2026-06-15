@@ -129,6 +129,12 @@ function World.reset()
     G.systems = Galaxy.systems(1)
     G.fuel = C.FUEL_MAX
     G.credits = 1000          -- 100.0 Cr, Elite's starting balance (tenths)
+    G.cargo = {}
+    for i = 1, Trade.N do G.cargo[i] = 0 end
+    G.cargoBay = 20
+    G.missiles = 3
+    G.equip = {}
+    G.docked = false
     World.enterSystem(7)      -- Lave, the canonical starting system
     Harness.count("games")
 end
@@ -245,38 +251,15 @@ local function tryDock(o, dist)
     end
 end
 
--- pick a hyperspace target: one of the nearest systems within fuel range that
--- isn't where we are (the galactic chart in Phase 3 will let the pilot choose).
-local function pickJumpTarget()
-    local here = G.systems[G.sysIndex + 1]
-    local reach = {}
-    for i = 1, 256 do
-        if i - 1 ~= G.sysIndex then
-            local d = Galaxy.distance(here, G.systems[i])
-            if d > 0 and d <= G.fuel then reach[#reach + 1] = { i = i - 1, d = d } end
-        end
-    end
-    if #reach == 0 then return nil end
-    table.sort(reach, function(a, b) return a.d < b.d end)
-    local pick = reach[math.random(1, math.min(6, #reach))]
-    return pick.i, pick.d
-end
-
 function World.dock()
     G.energy, G.shield, G.hull = C.ENERGY_MAX, C.SHIELD_MAX, C.HULL_HITS
     G.laserHeat = 0
-    G.fuel = C.FUEL_MAX          -- refuel and repair at the station
     G.addScore(C.DOCK_BONUS)
     Sfx.fanfare()
     Harness.count("docks")
-    local target, dist = pickJumpTarget()
-    if target then
-        G.fuel = math.max(0, G.fuel - dist)
-        Harness.count("jumps")
-        World.enterSystem(target)
-    else
-        World.enterSystem(G.sysIndex)
-    end
+    -- enter the station: the docked screens take over (launch, chart, market,
+    -- equip, status, inventory) until the player launches or jumps out.
+    Docked.enter()
 end
 
 function World.update(dt)

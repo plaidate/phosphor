@@ -26,6 +26,12 @@ G = {
     sysName = "LAVE",   -- current system name
     fuel = 70,          -- light years * 10
     credits = 1000,     -- 100.0 Cr (tenths)
+    cargo = {},         -- tonnes/kg/g held of each of the 17 commodities
+    cargoBay = 20,      -- hold capacity in tonnes (35 with a large bay)
+    missiles = 3,
+    equip = {},         -- ecm / scoop / bomb / dockComp / galHyper flags
+    docked = false,     -- at a station, showing the menu screens
+    market = nil,       -- current system's stock market
     pirates = 0,        -- live hostiles remaining in this system
 
     -- transient hit feedback
