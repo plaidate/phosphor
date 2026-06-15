@@ -1,6 +1,6 @@
 # Phosphor
 
-Twelve vector arcade games for the [Playdate](https://play.date) — white
+Thirteen vector arcade games for the [Playdate](https://play.date) — white
 beam lines on black, the way the cabinets drew them. Every game is an
 original implementation of a classic vector-era design, with the crank
 doing what each cabinet's spinner, throttle, yoke, or wheel did.
@@ -21,6 +21,7 @@ Each game links to its own page with controls, rules, and a screenshot.
 | [Trenchfire](games/trenchfire/) | trench-run rail shooters (1983) | throttle |
 | [Gravity Wells](games/gravitywells/) | gravity missions (1982) | spin ship |
 | [Duelstar](games/duelstar/) | two-ship duels (1977) | spin ship |
+| [Elite](games/elite/) | wireframe space combat (1984) | roll |
 
 ## Playing (no build needed)
 

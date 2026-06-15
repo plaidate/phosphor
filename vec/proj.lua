@@ -85,6 +85,30 @@ function Proj.model(polys, ox, oy, oz, yawDeg)
     end
 end
 
+-- Draw a wireframe mesh at full attitude. verts is a flat model-space array
+-- {x1,y1,z1, x2,y2,z2, ...}; edges is a flat 1-based index-pair array
+-- {a1,b1, a2,b2, ...}; pos is the object position {x,y,z}; m is a Mat
+-- orientation (object -> world, nil = identity); scale multiplies the model.
+-- Expects the camera at the origin looking down +Z (Proj.setCamera(0,0,0,0,0)),
+-- which is how free-flight games keep the player fixed and move the universe.
+local mx, my, mz = {}, {}, {} -- transformed-vertex scratch, reused per call
+function Proj.mesh(verts, edges, pos, m, scale)
+    scale = scale or 1
+    local ox, oy, oz = pos.x, pos.y, pos.z
+    local n = #verts
+    local vi = 0
+    for i = 1, n - 2, 3 do
+        local x, y, z = verts[i] * scale, verts[i + 1] * scale, verts[i + 2] * scale
+        if m then x, y, z = Mat.mulVec(m, x, y, z) end
+        vi = vi + 1
+        mx[vi], my[vi], mz[vi] = ox + x, oy + y, oz + z
+    end
+    for i = 1, #edges - 1, 2 do
+        local a, b = edges[i], edges[i + 1]
+        Proj.line(mx[a], my[a], mz[a], mx[b], my[b], mz[b])
+    end
+end
+
 -- horizon line for ground-plane games (uses current camera yaw/pitch)
 function Proj.horizon()
     local y = Proj.cy + cam.sinp * Proj.focal

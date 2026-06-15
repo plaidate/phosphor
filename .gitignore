@@ -2,3 +2,7 @@ build/
 out/
 results/
 .DS_Store
+
+# upstream Elite sources, cloned locally as references for the elite game
+elite-source-code-library/
+newkind/
