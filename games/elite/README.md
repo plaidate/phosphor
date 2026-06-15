@@ -9,8 +9,13 @@ Wireframe space combat from the cockpit — fly, fight, dock, jump.
 - Crank — roll (d-pad left/right rolls too)
 - D-pad up/down — pitch (up climbs)
 - A — fire the front laser
-- B + up/down — throttle up/down
-- Dock with the station to jump to the next system
+- B is the secondary-functions modifier:
+  - B + up/down — throttle
+  - B + A — launch a missile at the locked target
+  - B + left — E.C.M. (destroy incoming missiles)
+  - B + right — energy bomb
+- Dock with the station for the trade screens — buy/sell cargo at the
+  market, equip your ship, pick a jump target on the galactic chart
 
 ## How it plays
 

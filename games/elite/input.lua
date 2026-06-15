@@ -19,6 +19,7 @@ local function len3(x, y, z) return math.sqrt(x * x + y * y + z * z) end
 -- line, pitch to bring it to the middle, fire when it is in the reticle, and
 -- ease off the throttle to dock once the system is clear.
 Harness.autopilot = function()
+    G.fireMissile, G.useECM, G.useBomb = false, false, false
     -- choose a target: nearest pirate, else the station to dock
     local target, bestd = nil, math.huge
     for _, o in ipairs(G.objs) do
@@ -55,6 +56,10 @@ Harness.autopilot = function()
                 pitch = clamp(dy * 0.04, -1, 1) * aligned * C.PITCH_RATE
                 if dx * dx + dy * dy < (C.LASER_HIT_PX * 1.4) ^ 2 then
                     fire = not docking
+                    -- occasionally loose a missile at a lined-up hostile
+                    if fire and G.missiles > 0 and math.random() < 0.01 then
+                        G.fireMissile = true
+                    end
                 end
             end
         end
@@ -75,23 +80,26 @@ function Input.gather()
     local dt = Attract.dt
     local bHeld = pd.buttonIsPressed(pd.kButtonB)
 
-    -- roll: crank first, d-pad left/right as a digital fallback
     local roll = pd.getCrankChange() * C.CRANK_ROLL / dt
-    if pd.buttonIsPressed(pd.kButtonLeft) then roll = roll - C.ROLL_RATE end
-    if pd.buttonIsPressed(pd.kButtonRight) then roll = roll + C.ROLL_RATE end
-
-    -- up/down: pitch, unless B is held (then it's the throttle, NES-style)
     local pitch = 0
+    local fire = false
+    G.fireMissile, G.useECM, G.useBomb = false, false, false
+
     if bHeld then
+        -- B is the secondary-functions modifier (throttle + weapons)
         if pd.buttonIsPressed(pd.kButtonUp) then G.speed = G.speed + C.SPEED_STEP * dt end
         if pd.buttonIsPressed(pd.kButtonDown) then G.speed = G.speed - C.SPEED_STEP * dt end
+        if pd.buttonJustPressed(pd.kButtonA) then G.fireMissile = true end
+        if pd.buttonJustPressed(pd.kButtonLeft) then G.useECM = true end
+        if pd.buttonJustPressed(pd.kButtonRight) then G.useBomb = true end
     else
-        -- up = climb (nose up): targets slide down the view
+        -- left/right roll (crank too); up = climb (nose up); A fires the laser
+        if pd.buttonIsPressed(pd.kButtonLeft) then roll = roll - C.ROLL_RATE end
+        if pd.buttonIsPressed(pd.kButtonRight) then roll = roll + C.ROLL_RATE end
         if pd.buttonIsPressed(pd.kButtonUp) then pitch = pitch - C.PITCH_RATE end
         if pd.buttonIsPressed(pd.kButtonDown) then pitch = pitch + C.PITCH_RATE end
+        fire = pd.buttonIsPressed(pd.kButtonA)
     end
     G.speed = clamp(G.speed, 0, C.SPEED_MAX)
-
-    local fire = pd.buttonIsPressed(pd.kButtonA)
     return roll, pitch, fire
 end
