@@ -120,6 +120,16 @@ function World.addThargoid()
     G.pirates = G.pirates + 1
 end
 
+-- the mission target: a fast, heavily armoured prototype
+function World.addConstrictor()
+    local x, y, z = spawnPos(C.SPAWN_Z * 1.2)
+    addObj({ kind = "pirate", mesh = "constrictor", r = Ships.constrictor.r,
+        pos = { x = x, y = y, z = z }, m = lookMatrix(-x, -y, -z),
+        speed = 300, spin = 0, hp = 90, maxhp = 90, fireT = math.random(), miss = 2,
+        constrictor = true })
+    G.pirates = G.pirates + 1
+end
+
 local GOV_NAME = { [0] = "ANARCHY", "FEUDAL", "MULTI-GOV", "DICTATORSHIP",
                    "COMMUNIST", "CONFEDERACY", "DEMOCRACY", "CORPORATE STATE" }
 
@@ -152,11 +162,18 @@ function World.enterSystem(index)
     if G.witchspace then
         for _ = 1, 2 + math.random(2) do World.addThargoid() end
     end
+    local hasConstrictor = false
+    if G.mission == 1 and not G.witchspace and math.random() < 0.3 then
+        World.addConstrictor()
+        hasConstrictor = true
+    end
     -- a fresh sun/planet backdrop for this system
     G.sunDir = { x = math.random() - 0.5, y = math.random() * 0.6 - 0.3, z = -1 }
     G.planetDir = { x = math.random() - 0.5, y = math.random() * 0.6 - 0.3, z = 1 }
     if G.witchspace then
         G.say("WITCHSPACE! THARGOIDS", 3)
+    elseif hasConstrictor then
+        G.say("CONSTRICTOR DETECTED!", 3)
     else
         G.say(G.sysName:upper() .. "  -  " .. (GOV_NAME[gov] or ""), 3)
     end
@@ -183,6 +200,7 @@ function World.reset()
         G.missiles = 3
         G.equip = {}
         G.legalStatus = 0
+        G.mission = 0
         G.score, G.kills = 0, 0
         World.enterSystem(7)  -- Lave, the canonical starting system
     end
@@ -226,6 +244,12 @@ local function destroyObj(o, i)
         G.kills = G.kills + 1
         G.pirates = math.max(0, G.pirates - 1)
         Harness.count("kills")
+        if o.constrictor and G.mission == 1 then
+            G.mission = 2
+            G.credits = G.credits + 5000          -- 500.0 Cr Navy bounty
+            G.say("CONSTRICTOR DESTROYED  +500 CR", 4)
+            Harness.count("mission")
+        end
         if math.random() < 0.5 then World.addCargo(o.pos.x, o.pos.y, o.pos.z) end
         if G.pirates == 0 then G.say("SYSTEM CLEAR - DOCK FOR BONUS", 3) end
     elseif o.kind == "asteroid" then
@@ -301,15 +325,25 @@ local function updatePirate(o, dt)
 end
 
 local function tryDock(o, dist)
-    local sx, sy = Proj.point(o.pos.x, o.pos.y, o.pos.z)
-    local centred = sx and o.pos.z > 0
-        and (sx - Proj.cx) ^ 2 + (sy - Proj.cy) ^ 2 < 60 * 60
+    if dist > C.DOCK_RANGE then return end
     local slow = G.speed <= C.SPEED_DOCK
-    if dist < 380 and slow and centred then
+    -- the docking computer (and the headless autopilot) flies you straight in
+    if (G.equip.dockComp or Harness.enabled) and dist < 380 and slow then
         World.dock()
         return
     end
-    if dist < o.r + PLAYER_R and not (slow and centred) then
+    local sx, sy = Proj.point(o.pos.x, o.pos.y, o.pos.z)
+    local centred = sx and o.pos.z > 0
+        and (sx - Proj.cx) ^ 2 + (sy - Proj.cy) ^ 2 < 55 * 55
+    -- the Coriolis slot rotates with the station: line your ship up with it by
+    -- rolling until the station's "up" axis is near vertical on your screen
+    local upx, upy = o.m[2], o.m[5]
+    local aligned = (upx * upx) < (upx * upx + upy * upy) * 0.18  -- within ~25 deg
+    if dist < 360 and slow and centred and aligned then
+        World.dock()
+        return
+    end
+    if dist < o.r + PLAYER_R and not (slow and centred and aligned) then
         World.killPlayer("CRASHED INTO STATION")
     end
 end
@@ -327,6 +361,7 @@ function World.saveCommander()
         credits = G.credits, fuel = G.fuel, cargoBay = G.cargoBay,
         missiles = G.missiles, cargo = G.cargo, equip = G.equip,
         legalStatus = G.legalStatus, kills = G.kills, score = G.score,
+        mission = G.mission,
     }, "cmdr")
 end
 
@@ -346,6 +381,7 @@ function World.loadCommander()
     G.legalStatus = s.legalStatus or 0
     G.kills = s.kills or 0
     G.score = s.score or 0
+    G.mission = s.mission or 0
     World.enterSystem(s.sysIndex or 7)
     return true
 end
@@ -356,6 +392,8 @@ function World.dock()
     G.addScore(C.DOCK_BONUS)
     Sfx.fanfare()
     Harness.count("docks")
+    -- a proven pilot is recruited by the Navy to hunt the Constrictor
+    if G.mission == 0 and G.kills >= 12 then G.mission = 1 end
     World.saveCommander()        -- checkpoint the campaign
     -- enter the station: the docked screens take over (launch, chart, market,
     -- equip, status, inventory) until the player launches or jumps out.

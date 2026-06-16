@@ -234,6 +234,8 @@ local function drawStatus()
     line("Legal status", G.statusName(), L + 96)
     line("Rating", G.rating(), L + 112)
     line("Kills", "" .. G.kills, L + 128)
+    local mt = ({ [0] = "None", [1] = "Hunt the Constrictor", [2] = "Complete" })[G.mission]
+    line("Mission", mt or "None", L + 144)
     Beams.print("B BACK", 200, 232, 7, { align = "center" })
 end
 

@@ -38,6 +38,7 @@ G = {
     sunDir = { x = 0, y = 0.3, z = -1 },     -- unit bearing to the sun
     planetDir = { x = 0.4, y = -0.2, z = 1 }, -- unit bearing to the planet
     witchspace = false, -- dumped into interstellar space with Thargoids
+    mission = 0,        -- 0 none, 1 hunt the Constrictor, 2 complete
     pirates = 0,        -- live hostiles remaining in this system
 
     -- transient hit feedback
