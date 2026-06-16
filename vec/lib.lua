@@ -4,6 +4,7 @@ import "CoreLibs/graphics"
 
 import "vec"
 import "field"
+import "grid"
 import "shapes"
 import "mat"
 import "proj"

@@ -1,0 +1,8 @@
+name=Phosphor: Geometry Wars
+author=sdwfrost
+description=Twin-stick grid shooter. D-pad flies, crank aims, B bombs.
+bundleID=com.sdwfrost.phosphor.opengw
+version=1.0
+buildNumber=1
+pdxversion=30005
+buildtime=834887703

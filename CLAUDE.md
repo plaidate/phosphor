@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Phosphor is a package of thirteen original vector arcade games for the Playdate, written in Lua against the Playdate SDK. Every game is white beam lines on black, and the crank stands in for each cabinet's spinner/throttle/yoke/wheel. The games share a single library in `vec/`.
+Phosphor is a package of fourteen original vector arcade games for the Playdate, written in Lua against the Playdate SDK. Every game is white beam lines on black, and the crank stands in for each cabinet's spinner/throttle/yoke/wheel. The games share a single library in `vec/`.
 
 Playdate-specific API and SDK reference (CoreLibs, `playdate.*`, the Simulator, sideloading): <https://sdk.play.date/3.0.6/Inside%20Playdate.html>. Reach for it before guessing at SDK behaviour — the games lean on `playdate.graphics`, `playdate.datastore`, `playdate.getCrankChange`, `playdate.sound.synth`, and `playdate.simulator`.
 
@@ -28,6 +28,7 @@ Requires the Playdate SDK with `pdc` on PATH (compiler) and, for smoke runs, the
 
 - `Vec` / `Util` — 2D vector math, `clamp`, and a delayed-call scheduler (`Util.runPending`/`clearPending`). `Util` is a compatibility alias kept so all games read uniformly.
 - `Field` — the 400×240 playfield: screen wrapping and wrap-aware distance (`Field.dist2`).
+- `Grid` — a warping spring lattice over the field (`Grid.init`/`reset`/`update`/`draw`, plus `Grid.push`/`pull` to dent it). Every point is anchored to its home by a weak spring and coupled to its four neighbours, so impulses ripple and settle — the deforming-grid look of twin-stick shooters (used by `opengw`). One shared instance, like `Fx`.
 - `Shapes` — polyline models drawn transformed; `Shapes.drawWrapped` for screen-wrap rendering.
 - `proj` — 3D wireframe camera with near-plane clipping. Ground games (treadline, nightvector, trenchfire) move a yaw-only camera with `Proj.model`/`Proj.line`/`Proj.horizon`. Free-flight (elite) instead keeps the camera at the origin (`Proj.setCamera(0,0,0,0,0)`) and draws full-attitude objects with `Proj.mesh(verts, edges, pos, orient, scale)`, where `verts` is a flat `{x,y,z,...}` model array and `edges` is a flat 1-based index-pair array.
 - `Mat` — 3x3 orientation matrices (flat row-major 9-arrays) for objects at any attitude: `identity`, `mulVec`, `mul`, the axis rotations `rx/ry/rz`, the premultiply helpers `spinX/Y/Z`, and `tidy` (re-orthonormalize to shed per-frame drift, anchored on the nose = column 3). Column 3 is the object's forward (+Z) direction. This is the general-purpose 3D layer `Proj.mesh` and elite are built on.

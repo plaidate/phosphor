@@ -6,3 +6,6 @@ results/
 # upstream Elite sources, cloned locally as references for the elite game
 elite-source-code-library/
 newkind/
+
+# upstream Open Geometry Wars source, cloned locally as a reference for opengw
+/opengw/
