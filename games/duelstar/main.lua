@@ -110,7 +110,7 @@ local function updatePlay(dt)
     end
 end
 
-Harness.shotPath = "phosphor/build/duelstar-shot.png"
+Harness.shotPath = "build/duelstar-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state

@@ -58,7 +58,7 @@ local function ambient(dt)
     World.updateFrags(dt)
 end
 
-Harness.shotPath = "phosphor/build/treadline-shot.png"
+Harness.shotPath = "build/treadline-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state

@@ -53,7 +53,7 @@ local function updatePlay(dt)
     World.update(dt)
 end
 
-Harness.shotPath = "phosphor/build/trenchfire-shot.png"
+Harness.shotPath = "build/trenchfire-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state

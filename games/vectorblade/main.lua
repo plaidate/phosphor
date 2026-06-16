@@ -119,7 +119,7 @@ local function ambient(dt)
     Enemies.updateEShots(dt)
 end
 
-Harness.shotPath = "phosphor/build/vectorblade-shot.png"
+Harness.shotPath = "build/vectorblade-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state

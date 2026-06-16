@@ -59,7 +59,7 @@ local function updatePlay(dt)
     end
 end
 
-Harness.shotPath = "phosphor/build/webguard-shot.png"
+Harness.shotPath = "build/webguard-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state

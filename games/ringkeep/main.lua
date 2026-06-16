@@ -52,7 +52,7 @@ local function ambient(dt)
     Castle.spinRings(dt)
 end
 
-Harness.shotPath = "phosphor/build/ringkeep-shot.png"
+Harness.shotPath = "build/ringkeep-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state

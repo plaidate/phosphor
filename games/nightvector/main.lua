@@ -90,7 +90,7 @@ local function ambient(dt)
     G.demo.s = G.demo.s + 24 * dt
 end
 
-Harness.shotPath = "phosphor/build/nightvector-shot.png"
+Harness.shotPath = "build/nightvector-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state

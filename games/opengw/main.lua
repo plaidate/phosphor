@@ -88,7 +88,7 @@ local function ambient(dt)
     end
 end
 
-Harness.shotPath = "phosphor/build/opengw-shot.png"
+Harness.shotPath = "build/opengw-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state
