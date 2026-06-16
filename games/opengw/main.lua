@@ -20,9 +20,10 @@ local function startGame()
     G.score = 0
     G.lives = C.START_LIVES
     G.bombs = C.START_BOMBS
-    G.nextLifeAt = C.EXTRA_LIFE_AT
-    G.mult, G.geomsForNext = 1, 0
-    G.shots, G.enemies, G.geoms = {}, {}, {}
+    G.mult, G.killCounter = 1, 0
+    G.lifeCounter, G.bombCounter, G.weaponCounter = 0, 0, 0
+    G.weapon = 0
+    G.shots, G.enemies = {}, {}
     G.bombWave = nil
     G.bombT, G.respawnT = 0, 0
     G.ship = Player.new()
@@ -66,7 +67,6 @@ local function updatePlay(dt)
     Player.updateShots(dt)
     Spawner.update(dt)
     Enemies.update(dt)
-    Enemies.updateGeoms(dt)
     updateBomb(dt)
     Grid.update(dt)
 end
@@ -76,7 +76,7 @@ end
 local function ambient(dt)
     G.ship = G.ship or Player.new()
     G.ship.alive = false
-    G.shots, G.geoms = {}, {}
+    G.shots = {}
     if #G.enemies < 5 then
         local x, y = math.random(30, Field.W - 30), math.random(30, Field.H - 30)
         Enemies.spawn("wander", x, y, false)

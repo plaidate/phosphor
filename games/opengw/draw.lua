@@ -17,18 +17,17 @@ local GLYPH = {
     tiny    = Shapes.gon(6, 6, 2.5),     -- small burr
     weaver  = Shapes.gon(7, 6),          -- hexagon
     proton  = Shapes.gon(4, 8),          -- bright dot
+    snake   = Shapes.new({ { 8, 0, -4, -5, -4, 5, 8, 0 } }), -- chevron head
 }
 
--- grey 50% pattern for the background lattice
 local GRID_PAT <const> = { 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55 }
 
 local function drawEnemy(e)
     if e.warn > 0 then
-        -- telegraph: a shrinking, flashing diamond that closes on the spawn
         if Attract.frame % 4 < 2 then return end
-        local rad = e.r + e.warn * 40
         gfx.setLineWidth(1)
-        Shapes.draw(GLYPH[e.kind] or GLYPH.grunt, e.x, e.y, 0, rad / e.r)
+        local g = GLYPH[e.kind] or GLYPH.grunt
+        Shapes.draw(g, e.x, e.y, 0, (e.r + e.warn * 40) / e.r)
         return
     end
     gfx.setLineWidth(2)
@@ -37,14 +36,12 @@ local function drawEnemy(e)
         local r = e.r + math.sin(e.anim) * 3
         gfx.drawCircleAtPoint(e.x, e.y, r)
         gfx.drawCircleAtPoint(e.x, e.y, r * 0.55)
-        -- swirling spokes
         for i = 0, 3 do
             local a = e.anim + i * 1.57
             gfx.drawLine(e.x, e.y, e.x + math.cos(a) * r, e.y + math.sin(a) * r)
         end
     elseif k == "grunt" then
-        local s = 1 + 0.18 * math.sin(e.anim * 3)
-        Shapes.draw(GLYPH.grunt, e.x, e.y, math.deg(e.anim) * 0.5, s)
+        Shapes.draw(GLYPH.grunt, e.x, e.y, math.deg(e.anim) * 0.5, 1 + 0.18 * math.sin(e.anim * 3))
     elseif k == "wander" then
         Shapes.draw(GLYPH.wander, e.x, e.y, math.deg(e.anim) + 45, 1)
     elseif k == "spinner" then
@@ -55,6 +52,40 @@ local function drawEnemy(e)
         Shapes.draw(GLYPH.weaver, e.x, e.y, math.deg(e.anim), 1)
     elseif k == "proton" then
         Shapes.draw(GLYPH.proton, e.x, e.y, math.deg(e.anim), 1)
+    elseif k == "mayfly" then
+        -- flapping wings: two strokes whose angle oscillates
+        local face = Vec.angleOf(e.vx, e.vy)
+        local flap = (e.wing == 1) and 22 or 52
+        for _, sgn in ipairs({ -1, 1 }) do
+            local wx, wy = Vec.fromAngle(face + sgn * flap, 9)
+            gfx.drawLine(e.x, e.y, e.x + wx, e.y + wy)
+            local tx, ty = Vec.fromAngle(face + sgn * (flap + 30), 6)
+            gfx.drawLine(e.x + wx, e.y + wy, e.x + wx * 0.4 + tx, e.y + wy * 0.4 + ty)
+        end
+    elseif k == "snake" then
+        for j = C.SNAKE.segs, 1, -1 do
+            local p = e.trail[j * C.SNAKE.seglag]
+            if p then
+                local rad = e.r * 0.7 * (1 - j / (C.SNAKE.segs + 4))
+                gfx.drawCircleAtPoint(p.x, p.y, math.max(2, rad))
+            end
+        end
+        Shapes.draw(GLYPH.snake, e.x, e.y, Vec.angleOf(e.vx, e.vy), 1)
+    elseif k == "repulsor" then
+        gfx.drawCircleAtPoint(e.x, e.y, e.r)
+        -- facing prong
+        local fx, fy = Vec.fromAngle(e.facing, e.r + 5)
+        gfx.drawLine(e.x, e.y, e.x + fx, e.y + fy)
+        -- rotating shield arcs (three short strokes around the rim)
+        if e.shieldUp then
+            for i = 0, 2 do
+                local a = e.shieldPhase + i * 2.094
+                local r1 = e.r + 4
+                local ax, ay = math.cos(a) * r1, math.sin(a) * r1
+                local bx, by = math.cos(a + 0.5) * r1, math.sin(a + 0.5) * r1
+                gfx.drawLine(e.x + ax, e.y + ay, e.x + bx, e.y + by)
+            end
+        end
     end
 end
 
@@ -65,22 +96,15 @@ function Draw.grid()
     gfx.setColor(gfx.kColorWhite)
 end
 
-function Draw.geoms()
-    gfx.setLineWidth(1)
-    for _, gm in ipairs(G.geoms) do
-        Shapes.draw(Shapes.gon(C.GEOM_R, 4), gm.x, gm.y, gm.spin, 1)
-    end
-end
-
 function Draw.enemies()
     for _, e in ipairs(G.enemies) do drawEnemy(e) end
     gfx.setLineWidth(1)
 end
 
 function Draw.shots()
+    gfx.setLineWidth(2)
     for _, b in ipairs(G.shots) do
         local lx, ly = Vec.norm(b.vx, b.vy)
-        gfx.setLineWidth(2)
         gfx.drawLine(b.x, b.y, b.x - lx * 5, b.y - ly * 5)
     end
     gfx.setLineWidth(1)
@@ -89,16 +113,12 @@ end
 function Draw.ship()
     local s = G.ship
     if not s or not s.alive then return end
-    if s.invuln > 0 and Attract.frame % 4 < 2 then
-        -- still draw the shield ring while blinking the hull off
-    else
+    if not (s.invuln > 0 and Attract.frame % 4 < 2) then
         gfx.setLineWidth(2)
         Shapes.draw(SHIP, s.x, s.y, s.aim, 1)
         gfx.setLineWidth(1)
     end
-    if s.invuln > 0 then
-        gfx.drawCircleAtPoint(s.x, s.y, C.SHIP_R + 4)
-    end
+    if s.invuln > 0 then gfx.drawCircleAtPoint(s.x, s.y, C.SHIP_R + 4) end
 end
 
 function Draw.bomb()
@@ -111,17 +131,15 @@ end
 
 function Draw.hud()
     Beams.print(tostring(G.score), 8, 6, 12, { weight = 1 })
-    if G.mult > 1 then
-        Beams.print("X" .. G.mult, 8, 22, 9)
-    end
+    if G.mult > 1 then Beams.print("X" .. G.mult, 8, 22, 9) end
     Beams.print("HIGH " .. Attract.high, Field.W / 2, 6, 8, { align = "center" })
     Beams.print("LIVES " .. G.lives, Field.W - 8, 6, 8, { align = "right" })
     Beams.print("BOMB " .. G.bombs, Field.W - 8, 18, 8, { align = "right" })
+    Beams.print("WPN " .. (G.weapon + 1), Field.W - 8, 30, 8, { align = "right" })
 end
 
 function Draw.play()
     Draw.grid()
-    Draw.geoms()
     Draw.bomb()
     Draw.enemies()
     Draw.shots()
@@ -129,7 +147,6 @@ function Draw.play()
     Draw.hud()
 end
 
--- title/game-over backdrop: the live, drifting grid and wandering glyphs
 function Draw.ambient()
     Draw.grid()
     Draw.enemies()
