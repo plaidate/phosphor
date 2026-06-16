@@ -7,7 +7,7 @@
 # A build stages vec/* + games/<g>/* into build/<g>/source (pdc wants one
 # source root), writes smokeflag.lua, then runs pdc.
 
-GAMES := rubble welldiver touchdown ringkeep bordercircuit lifters webguard treadline nightvector trenchfire gravitywells duelstar elite opengw
+GAMES := rubble welldiver touchdown ringkeep bordercircuit lifters webguard treadline nightvector trenchfire gravitywells duelstar elite opengw vectorblade
 
 OUT := out
 
