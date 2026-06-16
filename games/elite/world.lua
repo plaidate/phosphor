@@ -93,6 +93,33 @@ function World.addCargo(x, y, z)
     })
 end
 
+local TRADER_SHIPS = { "cobra", "python", "boa", "transporter", "anaconda" }
+
+function World.addTrader()
+    local kind = TRADER_SHIPS[math.random(#TRADER_SHIPS)]
+    if not (Ships[kind] and Ships[kind].verts) then kind = "cobra" end
+    local x, y, z = spawnPos(C.SPAWN_Z)
+    addObj({ kind = "trader", mesh = kind, r = Ships[kind].r,
+        pos = { x = x, y = y, z = z }, m = lookMatrix(math.random(-9, 9), 0, math.random(4, 9)),
+        speed = 120 + math.random(80), spin = 0, hp = 30, maxhp = 30 })
+end
+
+function World.addPolice(hostile)
+    local x, y, z = spawnPos(C.SPAWN_Z)
+    addObj({ kind = "police", mesh = "viper", r = Ships.viper.r,
+        pos = { x = x, y = y, z = z }, m = lookMatrix(-x, -y, -z),
+        speed = 240 + math.random(80), spin = 0, hp = 22, maxhp = 22,
+        fireT = math.random(), miss = 1, hostile = hostile or false })
+end
+
+function World.addThargoid()
+    local x, y, z = spawnPos(C.SPAWN_Z)
+    addObj({ kind = "pirate", mesh = "thargoid", r = Ships.thargoid.r,
+        pos = { x = x, y = y, z = z }, m = lookMatrix(-x, -y, -z),
+        speed = 260, spin = 0, hp = 60, maxhp = 60, fireT = math.random(), miss = 2 })
+    G.pirates = G.pirates + 1
+end
+
 local GOV_NAME = { [0] = "ANARCHY", "FEUDAL", "MULTI-GOV", "DICTATORSHIP",
                    "COMMUNIST", "CONFEDERACY", "DEMOCRACY", "CORPORATE STATE" }
 
@@ -117,7 +144,22 @@ function World.enterSystem(index)
     for _ = 1, pirates do World.addPirate(gov) end
     G.pirates = pirates
     for _ = 1, 1 + math.random(3) do World.addAsteroid() end
-    G.say(G.sysName:upper() .. "  -  " .. (GOV_NAME[gov] or ""), 3)
+    -- neutral traders (more in richer systems) and police (strong law / if wanted)
+    for _ = 1, (G.planet.econ < 4 and 2 or 1) do World.addTrader() end
+    if gov >= 5 or G.legalStatus > 0 then World.addPolice(G.legalStatus > 0) end
+    -- the rare witchspace ambush
+    G.witchspace = math.random() < 0.07
+    if G.witchspace then
+        for _ = 1, 2 + math.random(2) do World.addThargoid() end
+    end
+    -- a fresh sun/planet backdrop for this system
+    G.sunDir = { x = math.random() - 0.5, y = math.random() * 0.6 - 0.3, z = -1 }
+    G.planetDir = { x = math.random() - 0.5, y = math.random() * 0.6 - 0.3, z = 1 }
+    if G.witchspace then
+        G.say("WITCHSPACE! THARGOIDS", 3)
+    else
+        G.say(G.sysName:upper() .. "  -  " .. (GOV_NAME[gov] or ""), 3)
+    end
 end
 
 function World.reset()
@@ -135,6 +177,8 @@ function World.reset()
     G.cargoBay = 20
     G.missiles = 3
     G.equip = {}
+    G.legalStatus = 0
+    G.cabinTemp = 0.1
     G.docked = false
     World.enterSystem(7)      -- Lave, the canonical starting system
     Harness.count("games")
@@ -181,6 +225,13 @@ local function destroyObj(o, i)
         if G.pirates == 0 then G.say("SYSTEM CLEAR - DOCK FOR BONUS", 3) end
     elseif o.kind == "asteroid" then
         Harness.count("rocks")
+    elseif o.kind == "trader" then
+        G.commitCrime(8)                 -- shooting an innocent makes you wanted
+        for _, x in ipairs(G.objs) do if x.kind == "police" then x.hostile = true end end
+        if math.random() < 0.5 then World.addCargo(o.pos.x, o.pos.y, o.pos.z) end
+    elseif o.kind == "police" then
+        G.commitCrime(24)
+        for _, x in ipairs(G.objs) do if x.kind == "police" then x.hostile = true end end
     end
     if b > 0 then G.addScore(b) end
     table.remove(G.objs, i)
@@ -365,6 +416,22 @@ function World.update(dt)
     local R = Mat.mul(Mat.rx(-G.pitch * dt), Mat.rz(-G.roll * dt))
     local forward = G.speed * dt
 
+    -- the sun and planet are a far backdrop: they swing with the view but don't
+    -- translate. Flying into the sun heats the cabin; scoops refuel there.
+    G.sunDir.x, G.sunDir.y, G.sunDir.z = Mat.mulVec(R, G.sunDir.x, G.sunDir.y, G.sunDir.z)
+    G.planetDir.x, G.planetDir.y, G.planetDir.z = Mat.mulVec(R, G.planetDir.x, G.planetDir.y, G.planetDir.z)
+    local heat = math.max(0, G.sunDir.z) * (0.3 + G.speed / C.SPEED_MAX)
+    G.cabinTemp = math.max(0.08, math.min(1, G.cabinTemp + (heat - 0.5) * dt))
+    if G.equip.scoop and G.cabinTemp > 0.6 and G.fuel < C.FUEL_MAX then
+        G.fuel = math.min(C.FUEL_MAX, G.fuel + 8 * dt)
+    elseif G.cabinTemp >= 1 then
+        World.hurt(20 * dt)
+    end
+    if G.station then
+        local sp = G.station.pos
+        G.altitude = math.max(0.05, math.min(1, len3(sp.x, sp.y, sp.z) / 8000))
+    end
+
     -- condition regen
     G.energy = math.min(C.ENERGY_MAX, G.energy + C.ENERGY_REGEN * dt)
     if G.energy > 20 and G.shield < C.SHIELD_MAX then
@@ -402,14 +469,14 @@ function World.update(dt)
 
         local dist = len3(p.x, p.y, p.z)
 
-        if o.kind == "pirate" then
+        if o.kind == "pirate" or (o.kind == "police" and o.hostile) then
             updatePirate(o, dt)
         elseif o.kind == "station" then
             tryDock(o, dist)
         end
 
-        -- a hostile whose hull is gone (laser or missile) dies here
-        if o.kind == "pirate" and o.hp <= 0 then
+        -- any ship whose hull is gone (laser or missile) dies here
+        if o.kind ~= "station" and o.hp and o.hp <= 0 then
             destroyObj(o, i)
         -- collision with the player (non-station; station handled in tryDock)
         elseif o.kind ~= "station" and dist < o.r + PLAYER_R then
