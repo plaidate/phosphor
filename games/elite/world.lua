@@ -163,24 +163,29 @@ function World.enterSystem(index)
 end
 
 function World.reset()
+    -- combat condition is always fresh; the campaign may be resumed from a save
     G.energy, G.shield, G.hull = C.ENERGY_MAX, C.SHIELD_MAX, C.HULL_HITS
     G.laserHeat, G.speed = 0, C.SPEED_CRUISE
-    G.score, G.kills = 0, 0
     G.hitFlash, G.laserT, G.docking = 0, 0, 0
     G.destroyed = false
-    G.galaxyNum = 1
-    G.systems = Galaxy.systems(1)
-    G.fuel = C.FUEL_MAX
-    G.credits = 1000          -- 100.0 Cr, Elite's starting balance (tenths)
-    G.cargo = {}
-    for i = 1, Trade.N do G.cargo[i] = 0 end
-    G.cargoBay = 20
-    G.missiles = 3
-    G.equip = {}
-    G.legalStatus = 0
     G.cabinTemp = 0.1
     G.docked = false
-    World.enterSystem(7)      -- Lave, the canonical starting system
+
+    if not World.loadCommander() then
+        -- a brand new commander: Jameson at Lave with 100 credits
+        G.galaxyNum = 1
+        G.systems = Galaxy.systems(1)
+        G.fuel = C.FUEL_MAX
+        G.credits = 1000
+        G.cargo = {}
+        for i = 1, Trade.N do G.cargo[i] = 0 end
+        G.cargoBay = 20
+        G.missiles = 3
+        G.equip = {}
+        G.legalStatus = 0
+        G.score, G.kills = 0, 0
+        World.enterSystem(7)  -- Lave, the canonical starting system
+    end
     Harness.count("games")
 end
 
@@ -309,12 +314,49 @@ local function tryDock(o, dist)
     end
 end
 
+-- ---- commander persistence --------------------------------------------
+-- The campaign is saved to the datastore at each dock (Elite's model) and
+-- resumed on a fresh game, so a death returns you to your last station with
+-- the credits, cargo and kit you had. Smoke builds never touch the save so
+-- their runs stay fresh and deterministic.
+
+function World.saveCommander()
+    if Harness.enabled then return end
+    playdate.datastore.write({
+        galaxyNum = G.galaxyNum, sysIndex = G.sysIndex,
+        credits = G.credits, fuel = G.fuel, cargoBay = G.cargoBay,
+        missiles = G.missiles, cargo = G.cargo, equip = G.equip,
+        legalStatus = G.legalStatus, kills = G.kills, score = G.score,
+    }, "cmdr")
+end
+
+function World.loadCommander()
+    if Harness.enabled then return false end
+    local s = playdate.datastore.read("cmdr")
+    if not s or not s.galaxyNum then return false end
+    G.galaxyNum = s.galaxyNum
+    G.systems = Galaxy.systems(s.galaxyNum)
+    G.credits = s.credits or 1000
+    G.fuel = s.fuel or C.FUEL_MAX
+    G.cargoBay = s.cargoBay or 20
+    G.missiles = s.missiles or 3
+    G.cargo = s.cargo or {}
+    for i = 1, Trade.N do G.cargo[i] = G.cargo[i] or 0 end
+    G.equip = s.equip or {}
+    G.legalStatus = s.legalStatus or 0
+    G.kills = s.kills or 0
+    G.score = s.score or 0
+    World.enterSystem(s.sysIndex or 7)
+    return true
+end
+
 function World.dock()
     G.energy, G.shield, G.hull = C.ENERGY_MAX, C.SHIELD_MAX, C.HULL_HITS
     G.laserHeat = 0
     G.addScore(C.DOCK_BONUS)
     Sfx.fanfare()
     Harness.count("docks")
+    World.saveCommander()        -- checkpoint the campaign
     -- enter the station: the docked screens take over (launch, chart, market,
     -- equip, status, inventory) until the player launches or jumps out.
     Docked.enter()
