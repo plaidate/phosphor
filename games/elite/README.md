@@ -1,6 +1,7 @@
 # Elite
 
-Wireframe space combat from the cockpit — fly, fight, dock, jump.
+Wireframe space trading and combat from the cockpit — fly, fight,
+trade, and work your way across the galaxy.
 
 ![Elite](screenshot.png)
 
@@ -24,25 +25,38 @@ around you as you roll and pitch, exactly as the 1984 original flew it.
 Pirates close in and fire when they line you up — roll them onto the
 vertical and pitch them into the reticle, and a held laser does the
 rest. Watch the laser-temperature gauge (LT); a maxed laser cuts out
-until it cools.
+until it cools. Carry missiles for a locked kill, an E.C.M. to swat
+incoming ones, and an energy bomb for when you're swarmed.
 
 The 3D scanner below the view plots every contact: left/right and
-fore/aft on the ellipse, above/below on the stalk. The station shows
-as the larger blip. Clear a system for the bounties, then fly into the
-station — slow (at or below the docking speed) and dead centre — to
-refuel, repair, and jump to the next, tougher system. Hit it fast or
-off-centre and you scatter yourself across the hull.
+fore/aft on the ellipse, above/below on the stalk; the compass points
+to the station. Dock by flying slow and centred into the rotating
+Coriolis slot — roll to line your ship up with it, or hit it wrong and
+scatter yourself across the hull (a docking computer flies you in once
+you can afford one).
 
-Your shields soak fire and recharge from the energy banks; when energy
-hits zero, you're gone. Kills raise your combat rating from Harmless all
-the way to Elite.
+Docked, the station screens are the other half of the game: buy low and
+sell high across the 17 commodities, whose prices swing with each
+system's economy; equip missiles, shields, scoops, an E.C.M., bigger
+cargo holds; and pick your next jump from the **galactic chart**. The
+galaxy is the real one — eight galaxies of 256 systems each, every name,
+economy, government and tech level generated from Elite's own seed, so
+Lave, Diso and Riedquat are right where they should be. Fuel limits each
+jump; refuel at a station or skim a sun with scoops fitted.
+
+Shoot the innocent and the police turn on you and your record slides
+from Clean to Fugitive. Earn enough kills and the Navy sends you after
+the Constrictor. Your commander — credits, cargo, kit, galaxy — is saved
+at every dock, so a death drops you back at your last station. Kills
+raise your combat rating from Harmless all the way to Elite.
 
 The ships are the real thing: the meshes are the vertex-and-edge
-blueprints from the [Elite source archive][src] (Sidewinder, Mamba,
-Viper, Cobra Mk III, Python, the Coriolis station, asteroids and cargo),
-and the controls follow the NES port's scheme.
+blueprints from the [Elite source archive][src] (32 of them, from the
+Sidewinder to the Coriolis station), the galaxy and economy are ported
+from [Elite — The New Kind][nk], and the controls follow the NES port.
 
 [src]: https://github.com/markmoxon/elite-source-code-library
+[nk]: https://github.com/fesh0r/newkind
 
 ---
 
