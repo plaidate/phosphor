@@ -49,7 +49,7 @@ local function ambient(_dt)
     if not G.terrain then Terrain.generate() end
 end
 
-Harness.shotPath = "/Users/sdwfrost/Projects/playdate/phosphor/build/touchdown-shot.png"
+Harness.shotPath = "build/touchdown-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state

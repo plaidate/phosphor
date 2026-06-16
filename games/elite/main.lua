@@ -45,7 +45,7 @@ local function drawPlay()
     end
 end
 
-Harness.shotPath = "/Users/lshsf3/Projects/playdate/phosphor/build/elite-shot.png"
+Harness.shotPath = "build/elite-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state

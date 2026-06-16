@@ -70,7 +70,7 @@ local function ambient(dt)
     Enemies.updateDrones(dt)
 end
 
-Harness.shotPath = "/Users/sdwfrost/Projects/playdate/phosphor/build/bordercircuit-shot.png"
+Harness.shotPath = "build/bordercircuit-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state

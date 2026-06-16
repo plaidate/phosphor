@@ -66,7 +66,7 @@ local function ambient(_dt)
     end
 end
 
-Harness.shotPath = "/Users/sdwfrost/Projects/playdate/phosphor/build/gravitywells-shot.png"
+Harness.shotPath = "build/gravitywells-shot.png"
 
 Harness.extra = function(t)
     t.state = Attract.state
