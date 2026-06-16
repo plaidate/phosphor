@@ -61,6 +61,7 @@ local function launch(targetIdx, dist)
     G.docked = false
     if targetIdx then
         G.fuel = math.max(0, G.fuel - dist)
+        G.legalStatus = G.legalStatus // 2   -- a jump cools your record (Elite)
         Harness.count("jumps")
         World.enterSystem(targetIdx)
     end
@@ -230,7 +231,7 @@ local function drawStatus()
     line("Cash", cr(G.credits) .. " CR", L + 48)
     line("Cargo bay", G.cargoBay .. "t", L + 64)
     line("Missiles", "" .. G.missiles, L + 80)
-    line("Legal status", "CLEAN", L + 96)
+    line("Legal status", G.statusName(), L + 96)
     line("Rating", G.rating(), L + 112)
     line("Kills", "" .. G.kills, L + 128)
     Beams.print("B BACK", 200, 232, 7, { align = "center" })

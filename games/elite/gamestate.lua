@@ -32,6 +32,12 @@ G = {
     equip = {},         -- ecm / scoop / bomb / dockComp / galHyper flags
     docked = false,     -- at a station, showing the menu screens
     market = nil,       -- current system's stock market
+    legalStatus = 0,    -- 0 clean .. offender .. fugitive (halves on a jump)
+    cabinTemp = 0.1,    -- 0..1, rises near the sun
+    altitude = 1,       -- 0..1, falls as you near the station/planet
+    sunDir = { x = 0, y = 0.3, z = -1 },     -- unit bearing to the sun
+    planetDir = { x = 0.4, y = -0.2, z = 1 }, -- unit bearing to the planet
+    witchspace = false, -- dumped into interstellar space with Thargoids
     pirates = 0,        -- live hostiles remaining in this system
 
     -- transient hit feedback
@@ -65,4 +71,15 @@ function G.rating()
         if G.kills >= r[1] then name = r[2] end
     end
     return name
+end
+
+-- legal status: clean until you shoot the innocent or the law
+function G.statusName()
+    if G.legalStatus == 0 then return "CLEAN" end
+    if G.legalStatus < 40 then return "OFFENDER" end
+    return "FUGITIVE"
+end
+
+function G.commitCrime(n)
+    G.legalStatus = math.min(127, G.legalStatus + n)
 end

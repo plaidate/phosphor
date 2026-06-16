@@ -69,9 +69,27 @@ local function drawReticle()
     gfx.drawLine(CX, Proj.cy + 4, CX, Proj.cy + 12)
 end
 
+-- the sun (bright disc) and planet (wireframe globe), a far backdrop
+local function drawBody(dir, fill)
+    if dir.z <= 0.06 then return end
+    local D, Rb = 12000, fill and 2400 or 2200
+    local sx, sy = Proj.point(dir.x * D, dir.y * D, dir.z * D)
+    if not sx then return end
+    local r = Proj.focal * Rb / D
+    if fill then
+        gfx.fillCircleAtPoint(sx, sy, r)
+    else
+        gfx.drawCircleAtPoint(sx, sy, r)
+        gfx.drawLine(sx - r, sy, sx + r, sy)
+        gfx.drawLine(sx, sy - r, sx, sy + r)
+    end
+end
+
 local function drawScene()
     gfx.setClipRect(1, 1, 398, VIEW_H - 1)
     drawStars()
+    if G.sunDir then drawBody(G.sunDir, true) end
+    if G.planetDir then drawBody(G.planetDir, false) end
     for _, o in ipairs(G.objs) do
         if o.pos.z > -o.r then
             local d = len3(o.pos.x, o.pos.y, o.pos.z)
