@@ -1,0 +1,6 @@
+name=Phosphor: Vectorblade
+author=sdwfrost
+description=Galaga-style vector swarm shooter. Crank to slide, fire, shop, survive.
+bundleID=com.sdwfrost.phosphor.vectorblade
+version=1.0
+buildNumber=1
