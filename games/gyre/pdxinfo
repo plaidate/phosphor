@@ -1,0 +1,6 @@
+name=Phosphor: Gyre
+author=sdwfrost
+description=Vector orbit gunnery. Crank the ship around the rim, shoot the squadrons swooping out of the deep, warp planet to planet.
+bundleID=com.sdwfrost.phosphor.gyre
+version=1.0
+buildNumber=1
