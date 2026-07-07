@@ -54,7 +54,6 @@ function Docked.enter()
     G.market = Trade.generate(G.planet.econ, G.marketRnd)
     G.chart = buildChart()
     G.dockT = 0
-    G.smokeStep = 0
 end
 
 local function launch(targetIdx, dist)

@@ -3,8 +3,6 @@
 
 Ship = {}
 
-local clamp = Util.clamp
-
 -- plain euclidean distance: the arena has walls, never wrap-aware math
 local function dist2(ax, ay, bx, by)
     local dx, dy = ax - bx, ay - by

@@ -6,8 +6,6 @@
 
 Enemies = {}
 
-local clamp = Util.clamp
-
 local function pathSpeed(base)
     return base + (G.stage - 1) * C.SPEED_STAGE
 end

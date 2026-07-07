@@ -3,8 +3,6 @@
 
 Player = {}
 
-local clamp = Util.clamp
-
 function Player.new()
     return {
         x = C.CX, y = C.CY,

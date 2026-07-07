@@ -5,8 +5,6 @@
 
 Enemies = {}
 
-local clamp = Util.clamp
-
 local function radiusOf(e)
     return math.sqrt(G.dist2(e.x, e.y, C.CX, C.CY))
 end

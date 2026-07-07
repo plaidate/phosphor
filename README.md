@@ -1,11 +1,15 @@
 # Phosphor
 
-Fifteen vector arcade games for the [Playdate](https://play.date) — white
+Sixteen vector arcade games for the [Playdate](https://play.date) — white
 beam lines on black, the way the cabinets drew them. Every game is an
 original implementation of a classic vector-era design, with the crank
 doing what each cabinet's spinner, throttle, yoke, or wheel did.
 
-Each game links to its own page with controls, rules, and a screenshot.
+**[Player's manual](MANUAL.md)** — controls, rules, enemies, and tips for
+every game. **[Developer guide](DEVGUIDE.md)** — the shared `vec/` engine
+and how to add a game.
+
+Each game also links to its own page with controls, rules, and a screenshot.
 
 | Game | Inspired by the era of | Crank |
 |---|---|---|
@@ -23,11 +27,13 @@ Each game links to its own page with controls, rules, and a screenshot.
 | [Duelstar](games/duelstar/) | two-ship duels (1977) | spin ship |
 | [Elite](games/elite/) | wireframe space combat (1984) | roll |
 | [Geometry Wars](games/opengw/) | twin-stick grid shooters (2003) | aim |
+| [Vectorblade](games/vectorblade/) | vector swarm shooters (2019) | spinner |
 | [Gyre](games/gyre/) | orbit tube shooters (1983) | fly the rim |
 
 ## Playing (no build needed)
 
-Ready-to-run copies of every game live in [`dist/`](dist/).
+Ready-to-run copies of every game live in [`dist/`](dist/), and zipped
+`.pdx` bundles are attached to each GitHub Release.
 
 - **On a Playdate**: sign in at [play.date/account/sideload](https://play.date/account/sideload),
   upload the `.pdx` you want (zip it first if your browser requires a
@@ -53,11 +59,12 @@ Requires the Playdate SDK with `pdc` on your PATH.
 ### Layout
 
 - `vec/` — the shared library: 2D vector math (`vec`), screen wrap
-  (`field`), polyline shape models (`shapes`), a 3D wireframe camera
+  (`field`), a warping spring grid (`grid`), polyline shape models
+  (`shapes`), 3x3 orientation matrices (`mat`), a 3D wireframe camera
   with near-plane clipping (`proj`), a vector stroke font (`beams`),
   particles and debris (`fx`), synth voices (`sfx`), the shared
   attract-mode cabinet and high scores (`attract`), and the smoke-test
-  harness (`harness`).
+  harness (`harness`). See [DEVGUIDE.md](DEVGUIDE.md) for the full tour.
 - `games/<name>/` — each game is a thin set of modules on the library;
   `games/rubble/` is the reference for the structure.
 - The Makefile stages `vec/` + the game's files into `build/<name>/source`

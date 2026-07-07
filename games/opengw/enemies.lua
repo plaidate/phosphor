@@ -7,8 +7,6 @@
 
 Enemies = {}
 
-local clamp = Util.clamp
-
 local DEF = {
     grunt = C.GRUNT, wander = C.WANDER, spinner = C.SPINNER, tiny = C.TINY,
     weaver = C.WEAVER, hole = C.HOLE, proton = C.PROTON, mayfly = C.MAYFLY,

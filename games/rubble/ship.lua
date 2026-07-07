@@ -35,7 +35,7 @@ function Ship.update(turn, thrust, fire, hyper)
         local dx, dy = Ship.dirVector()
         s.vx = s.vx + dx * C.THRUST * C.DT
         s.vy = s.vy + dy * C.THRUST * C.DT
-        local speed = math.sqrt(s.vx * s.vx + s.vy * s.vy)
+        local speed = Vec.len(s.vx, s.vy)
         if speed > C.MAX_SPEED then
             s.vx = s.vx * C.MAX_SPEED / speed
             s.vy = s.vy * C.MAX_SPEED / speed
