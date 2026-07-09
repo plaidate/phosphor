@@ -9,3 +9,4 @@ newkind/
 
 # upstream Open Geometry Wars source, cloned locally as a reference for opengw
 /opengw/
+dist/*.pdx/
