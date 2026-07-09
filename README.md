@@ -1,5 +1,7 @@
 # Phosphor
 
+> Part of **[plAIdate](https://plaidate.github.io)** — AI-built 1-bit games, ports, and engines for the Playdate.
+
 Sixteen vector arcade games for the [Playdate](https://play.date) — white
 beam lines on black, the way the cabinets drew them. Every game is an
 original implementation of a classic vector-era design, with the crank
