@@ -2,5 +2,5 @@ name=Phosphor: Webguard
 author=sdwfrost
 description=Vector web-defense. Crank-aimed fangs versus the swarm on the web.
 bundleID=com.sdwfrost.phosphor.webguard
-version=1.0
+version=0.1
 buildNumber=1

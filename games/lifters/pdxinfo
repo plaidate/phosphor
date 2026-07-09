@@ -2,5 +2,5 @@ name=Phosphor: Lifters
 author=sdwfrost
 description=Vector canister defense. Raiders drag your fuel away; unlimited ships, finite fuel.
 bundleID=com.sdwfrost.phosphor.lifters
-version=1.0
+version=0.1
 buildNumber=1
