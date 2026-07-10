@@ -1,6 +1,7 @@
 name=Phosphor: Treadline
-author=sdwfrost
+author=Simon Frost
 description=First-person vector tank combat. Treads, turret, one shell.
 bundleID=com.sdwfrost.phosphor.treadline
 version=0.1
-buildNumber=1
+buildNumber=2
+imagePath=launcher

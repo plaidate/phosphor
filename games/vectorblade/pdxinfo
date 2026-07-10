@@ -1,6 +1,7 @@
 name=Phosphor: Vectorblade
-author=sdwfrost
+author=Simon Frost
 description=Galaga-style vector swarm shooter. Crank to slide, fire, shop, survive.
 bundleID=com.sdwfrost.phosphor.vectorblade
 version=0.1
-buildNumber=1
+buildNumber=2
+imagePath=launcher

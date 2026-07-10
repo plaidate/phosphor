@@ -1,6 +1,7 @@
 name=Phosphor: Night Vector
-author=sdwfrost
+author=Simon Frost
 description=First-person night driving. Crank the wheel, beat the clock.
 bundleID=com.sdwfrost.phosphor.nightvector
 version=0.1
-buildNumber=1
+buildNumber=2
+imagePath=launcher

@@ -1,6 +1,7 @@
 name=Phosphor: Border Circuit
-author=sdwfrost
+author=Simon Frost
 description=Vector arena racing. Crank to steer, bounce the borders, clear the track.
 bundleID=com.sdwfrost.phosphor.bordercircuit
 version=0.1
-buildNumber=1
+buildNumber=2
+imagePath=launcher

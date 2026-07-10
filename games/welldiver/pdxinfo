@@ -1,6 +1,7 @@
 name=Phosphor: Welldiver
-author=sdwfrost
+author=Simon Frost
 description=Vector tube diving. Crank the claw around the well rim, blast what climbs out, dive deeper.
 bundleID=com.sdwfrost.phosphor.welldiver
 version=0.1
-buildNumber=1
+buildNumber=2
+imagePath=launcher

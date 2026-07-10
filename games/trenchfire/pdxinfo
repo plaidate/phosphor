@@ -1,6 +1,7 @@
 name=Phosphor: Trenchfire
-author=sdwfrost
+author=Simon Frost
 description=Wireframe rail assault on the fortress canyon. Blast fighters and towers, thread the trench, put one shot through the port.
 bundleID=com.sdwfrost.phosphor.trenchfire
 version=0.1
-buildNumber=1
+buildNumber=2
+imagePath=launcher

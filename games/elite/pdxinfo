@@ -1,6 +1,7 @@
 name=Phosphor: Elite
-author=sdwfrost
+author=Simon Frost
 description=Vector space combat. Crank to roll, pitch, fire, dock, jump.
 bundleID=com.sdwfrost.phosphor.elite
 version=0.1
-buildNumber=1
+buildNumber=2
+imagePath=launcher

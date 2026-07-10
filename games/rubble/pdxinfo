@@ -1,6 +1,7 @@
 name=Phosphor: Rubble
-author=sdwfrost
+author=Simon Frost
 description=Vector rock-blasting. Crank to spin, thrust, fire, pray.
 bundleID=com.sdwfrost.phosphor.rubble
 version=0.1
-buildNumber=1
+buildNumber=2
+imagePath=launcher
