@@ -15,9 +15,12 @@ function Fx.reset()
     flashT = 0
 end
 
+local MAX_POOL <const> = 400 -- soft cap: bursts beyond this are dropped
+
 function Fx.burst(x, y, n, speed)
     speed = speed or 70
     for _ = 1, n do
+        if #particles >= MAX_POOL then return end
         local a = math.random() * math.pi * 2
         local s = speed * (0.4 + math.random() * 1.0)
         particles[#particles + 1] = {
@@ -31,6 +34,7 @@ end
 function Fx.debris(x, y, n, speed)
     speed = speed or 45
     for _ = 1, n do
+        if #debris >= MAX_POOL then return end
         local a = math.random() * math.pi * 2
         local s = speed * (0.5 + math.random())
         debris[#debris + 1] = {
@@ -48,25 +52,39 @@ function Fx.flash(seconds)
 end
 
 function Fx.update(dt)
-    for i = #particles, 1, -1 do
+    -- swap-remove: pools are order-independent (points and line debris),
+    -- so an expired slot takes the last element instead of shifting the
+    -- tail -- table.remove here is O(n) per expiry and multi-kill frames
+    -- were shifting hundreds of slots
+    local n = #particles
+    local i = 1
+    while i <= n do
         local p = particles[i]
         p.life = p.life - dt
         if p.life <= 0 then
-            table.remove(particles, i)
+            particles[i] = particles[n]
+            particles[n] = nil
+            n = n - 1
         else
             p.x = p.x + p.vx * dt
             p.y = p.y + p.vy * dt
+            i = i + 1
         end
     end
-    for i = #debris, 1, -1 do
+    n = #debris
+    i = 1
+    while i <= n do
         local d = debris[i]
         d.life = d.life - dt
         if d.life <= 0 then
-            table.remove(debris, i)
+            debris[i] = debris[n]
+            debris[n] = nil
+            n = n - 1
         else
             d.x = d.x + d.vx * dt
             d.y = d.y + d.vy * dt
             d.angle = d.angle + d.spin * dt
+            i = i + 1
         end
     end
     if flashT > 0 then flashT = flashT - dt end

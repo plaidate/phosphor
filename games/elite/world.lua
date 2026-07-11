@@ -490,10 +490,13 @@ function World.updateMissile(o, i, dt, forward)
     end
 end
 
+local rxTmp, rzTmp, rTmp = {}, {}, {} -- per-frame rotation scratch
+
 function World.update(dt)
     -- the rotation the universe undergoes this frame: opposite the player's
     -- roll (about Z, the view axis) and pitch (about X)
-    local R = Mat.mul(Mat.rx(-G.pitch * dt), Mat.rz(-G.roll * dt))
+    local R = Mat.mul(Mat.rx(-G.pitch * dt, rxTmp),
+        Mat.rz(-G.roll * dt, rzTmp), rTmp)
     local forward = G.speed * dt
 
     -- the sun and planet are a far backdrop: they swing with the view but don't
@@ -532,7 +535,7 @@ function World.update(dt)
         local p = o.pos
         -- swing the object around the player
         p.x, p.y, p.z = Mat.mulVec(R, p.x, p.y, p.z)
-        if o.m then o.m = Mat.mul(R, o.m) end
+        if o.m then Mat.mul(R, o.m, o.m) end
         if o.kind == "pmissile" or o.kind == "emissile" then
             World.updateMissile(o, i, dt, forward)
         else
@@ -542,7 +545,7 @@ function World.update(dt)
             p.x = p.x + vx * dt; p.y = p.y + vy * dt; p.z = p.z + vz * dt
         end
         -- own spin (asteroids tumble, the station rotates)
-        if o.spin and o.spin ~= 0 then o.m = Mat.spinZ(o.m, o.spin * dt) end
+        if o.spin and o.spin ~= 0 then Mat.spinZ(o.m, o.spin * dt, o.m) end
         -- slide toward the player by our speed
         p.z = p.z - forward
         if o.hitT then o.hitT = o.hitT - dt; if o.hitT <= 0 then o.hitT = nil end end

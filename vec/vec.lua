@@ -15,9 +15,15 @@ function Vec.norm(x, y)
     return x / l, y / l, l
 end
 
+-- NOTE: Vec.rot alone takes RADIANS; every other Vec angle API is in
+-- degrees. Prefer Vec.rotDeg unless you already have radians in hand.
 function Vec.rot(x, y, rad)
     local c, s = math.cos(rad), math.sin(rad)
     return x * c - y * s, x * s + y * c
+end
+
+function Vec.rotDeg(x, y, deg)
+    return Vec.rot(x, y, math.rad(deg))
 end
 
 function Vec.fromAngle(deg, mag)

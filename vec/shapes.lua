@@ -34,10 +34,12 @@ function Shapes.draw(shape, x, y, angleDeg, scale)
     end
 end
 
+local function drawOffset(ox, oy, shape, x, y, angleDeg, scale)
+    Shapes.draw(shape, x + ox, y + oy, angleDeg, scale)
+end
+
 function Shapes.drawWrapped(shape, x, y, angleDeg, scale, r)
-    Field.offsets(x, y, r or 24, function(ox, oy)
-        Shapes.draw(shape, x + ox, y + oy, angleDeg, scale)
-    end)
+    Field.offsets(x, y, r or 24, drawOffset, shape, x, y, angleDeg, scale)
 end
 
 -- a closed irregular polygon (asteroids, debris chunks): n vertices,

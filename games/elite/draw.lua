@@ -1,6 +1,7 @@
 -- Elite rendering: the wireframe space view up top, the dashboard below.
 
 local gfx <const> = playdate.graphics
+local sRxTmp, sRzTmp, sRTmp = {}, {}, {} -- starfield rotation scratch
 
 Draw = {}
 
@@ -185,7 +186,8 @@ end
 
 function Draw.play()
     -- spin the starfield by the same rotation the world used this frame
-    spinStars(Mat.mul(Mat.rx(-G.pitch * C.DT), Mat.rz(-G.roll * C.DT)))
+    spinStars(Mat.mul(Mat.rx(-G.pitch * C.DT, sRxTmp),
+        Mat.rz(-G.roll * C.DT, sRzTmp), sRTmp))
     drawScene()
 
     -- HUD text over the view: system/rating left, score right
@@ -231,7 +233,8 @@ end
 -- attract background: a lone ship turning against the stars
 local ambM = Mat.identity()
 function Draw.ambient()
-    ambM = Mat.spinY(Mat.spinX(ambM, 0.004), 0.011)
+    Mat.spinX(ambM, 0.004, ambM)
+    Mat.spinY(ambM, 0.011, ambM)
     gfx.setClipRect(1, 1, 398, 200)
     -- drift the starfield slowly
     spinStars(Mat.ry(0.002))

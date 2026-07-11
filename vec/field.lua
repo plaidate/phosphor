@@ -20,19 +20,28 @@ function Field.dist2(ax, ay, bx, by)
     return dx * dx + dy * dy
 end
 
--- call fn(ox, oy) for every wrap offset under which an object of radius r
--- at (x, y) could be visible; fn is called at least once with (0, 0)
-function Field.offsets(x, y, r, fn)
-    local oxs = { 0 }
-    if x < r then oxs[#oxs + 1] = Field.W end
-    if x > Field.W - r then oxs[#oxs + 1] = -Field.W end
-    local oys = { 0 }
-    if y < r then oys[#oys + 1] = Field.H end
-    if y > Field.H - r then oys[#oys + 1] = -Field.H end
-    for _, ox in ipairs(oxs) do
-        for _, oy in ipairs(oys) do
-            fn(ox, oy)
-        end
+-- call fn(ox, oy, ...) for every wrap offset under which an object of
+-- radius r at (x, y) could be visible; fn is called at least once with
+-- (0, 0). Extra arguments are passed through to fn so callers can use a
+-- top-level function instead of building a closure — this runs in the
+-- draw path of every wrapped game, so it allocates nothing.
+function Field.offsets(x, y, r, fn, a, b, c, d, e)
+    local oxp = (x < r) and Field.W or nil
+    local oxn = (x > Field.W - r) and -Field.W or nil
+    local oyp = (y < r) and Field.H or nil
+    local oyn = (y > Field.H - r) and -Field.H or nil
+    fn(0, 0, a, b, c, d, e)
+    if oxp then fn(oxp, 0, a, b, c, d, e) end
+    if oxn then fn(oxn, 0, a, b, c, d, e) end
+    if oyp then
+        fn(0, oyp, a, b, c, d, e)
+        if oxp then fn(oxp, oyp, a, b, c, d, e) end
+        if oxn then fn(oxn, oyp, a, b, c, d, e) end
+    end
+    if oyn then
+        fn(0, oyn, a, b, c, d, e)
+        if oxp then fn(oxp, oyn, a, b, c, d, e) end
+        if oxn then fn(oxn, oyn, a, b, c, d, e) end
     end
 end
 

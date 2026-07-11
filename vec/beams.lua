@@ -108,5 +108,5 @@ function Beams.print(s, x, y, size, opts)
         end
         x = x + ADV * k
     end
-    if opts.weight then gfx.setLineWidth(1) end
+    if opts.weight then gfx.setLineWidth(opts.restore or 1) end
 end

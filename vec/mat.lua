@@ -26,42 +26,63 @@ function Mat.mulVec(m, x, y, z)
            m[7] * x + m[8] * y + m[9] * z
 end
 
--- matrix product a*b (both 9-arrays), returns a new 9-array
-function Mat.mul(a, b)
-    return {
-        a[1] * b[1] + a[2] * b[4] + a[3] * b[7],
-        a[1] * b[2] + a[2] * b[5] + a[3] * b[8],
-        a[1] * b[3] + a[2] * b[6] + a[3] * b[9],
-        a[4] * b[1] + a[5] * b[4] + a[6] * b[7],
-        a[4] * b[2] + a[5] * b[5] + a[6] * b[8],
-        a[4] * b[3] + a[5] * b[6] + a[6] * b[9],
-        a[7] * b[1] + a[8] * b[4] + a[9] * b[7],
-        a[7] * b[2] + a[8] * b[5] + a[9] * b[8],
-        a[7] * b[3] + a[8] * b[6] + a[9] * b[9],
-    }
+-- matrix product a*b (both 9-arrays). Allocates a new 9-array unless an
+-- `out` table is supplied; products land in locals first, so out may
+-- alias a or b (`Mat.mul(R, o.m, o.m)` is safe).
+function Mat.mul(a, b, out)
+    local m1 = a[1] * b[1] + a[2] * b[4] + a[3] * b[7]
+    local m2 = a[1] * b[2] + a[2] * b[5] + a[3] * b[8]
+    local m3 = a[1] * b[3] + a[2] * b[6] + a[3] * b[9]
+    local m4 = a[4] * b[1] + a[5] * b[4] + a[6] * b[7]
+    local m5 = a[4] * b[2] + a[5] * b[5] + a[6] * b[8]
+    local m6 = a[4] * b[3] + a[5] * b[6] + a[6] * b[9]
+    local m7 = a[7] * b[1] + a[8] * b[4] + a[9] * b[7]
+    local m8 = a[7] * b[2] + a[8] * b[5] + a[9] * b[8]
+    local m9 = a[7] * b[3] + a[8] * b[6] + a[9] * b[9]
+    if not out then
+        return { m1, m2, m3, m4, m5, m6, m7, m8, m9 }
+    end
+    out[1], out[2], out[3] = m1, m2, m3
+    out[4], out[5], out[6] = m4, m5, m6
+    out[7], out[8], out[9] = m7, m8, m9
+    return out
 end
 
--- rotation matrices (right-handed, angle in radians) about each parent axis
-function Mat.rx(t)
+-- rotation matrices (right-handed, angle in radians) about each parent
+-- axis; pass `out` to fill a reusable table instead of allocating
+function Mat.rx(t, out)
     local s, c = math.sin(t), math.cos(t)
-    return { 1, 0, 0, 0, c, -s, 0, s, c }
+    if not out then return { 1, 0, 0, 0, c, -s, 0, s, c } end
+    out[1], out[2], out[3] = 1, 0, 0
+    out[4], out[5], out[6] = 0, c, -s
+    out[7], out[8], out[9] = 0, s, c
+    return out
 end
 
-function Mat.ry(t)
+function Mat.ry(t, out)
     local s, c = math.sin(t), math.cos(t)
-    return { c, 0, s, 0, 1, 0, -s, 0, c }
+    if not out then return { c, 0, s, 0, 1, 0, -s, 0, c } end
+    out[1], out[2], out[3] = c, 0, s
+    out[4], out[5], out[6] = 0, 1, 0
+    out[7], out[8], out[9] = -s, 0, c
+    return out
 end
 
-function Mat.rz(t)
+function Mat.rz(t, out)
     local s, c = math.sin(t), math.cos(t)
-    return { c, -s, 0, s, c, 0, 0, 0, 1 }
+    if not out then return { c, -s, 0, s, c, 0, 0, 0, 1 } end
+    out[1], out[2], out[3] = c, -s, 0
+    out[4], out[5], out[6] = s, c, 0
+    out[7], out[8], out[9] = 0, 0, 1
+    return out
 end
 
 -- premultiply m by a rotation about a parent axis: returns rot(t) * m, i.e. the
 -- orientation after rotating it by t in the parent frame. Pitch is rx, roll rz.
-function Mat.spinX(m, t) return Mat.mul(Mat.rx(t), m) end
-function Mat.spinY(m, t) return Mat.mul(Mat.ry(t), m) end
-function Mat.spinZ(m, t) return Mat.mul(Mat.rz(t), m) end
+local spinTmp = {}
+function Mat.spinX(m, t, out) return Mat.mul(Mat.rx(t, spinTmp), m, out) end
+function Mat.spinY(m, t, out) return Mat.mul(Mat.ry(t, spinTmp), m, out) end
+function Mat.spinZ(m, t, out) return Mat.mul(Mat.rz(t, spinTmp), m, out) end
 
 -- Re-orthonormalize to shed the rounding drift that accumulates when a matrix
 -- is spun every frame (Elite's TIDY). Gram-Schmidt anchored on column 3 (nose).

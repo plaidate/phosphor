@@ -37,6 +37,9 @@ function Attract.setup(c)
     playdate.display.setRefreshRate(30)
 
     playdate.getSystemMenu():addMenuItem("restart", function()
+        -- a mid-run restart must not discard a record: settle the
+        -- score through gameOver before returning to the title
+        if Attract.state == "play" then Attract.gameOver() end
         Attract.state = "title"
     end)
 end
@@ -45,6 +48,7 @@ function Attract.gameOver()
     Attract.state = "over"
     overT = 0
     local score = cfg.hooks.score and cfg.hooks.score() or 0
+    Attract.newHigh = score > Attract.high and score > 0
     if score > Attract.high then
         Attract.high = score
         playdate.datastore.write({ highScore = Attract.high })
@@ -90,7 +94,7 @@ local function drawOver()
     local score = cfg.hooks.score and cfg.hooks.score() or 0
     Beams.print("GAME OVER", Field.W / 2, 60, 22, { align = "center", weight = 2 })
     Beams.print("SCORE " .. score, Field.W / 2, 110, 12, { align = "center" })
-    if score >= Attract.high and score > 0 then
+    if Attract.newHigh then
         Beams.print("NEW HIGH SCORE", Field.W / 2, 134, 10, { align = "center" })
     else
         Beams.print("HIGH " .. Attract.high, Field.W / 2, 134, 10, { align = "center" })

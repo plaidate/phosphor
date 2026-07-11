@@ -11,6 +11,8 @@ local tri = snd.synth.new(snd.kWaveTriangle)
 local saw = snd.synth.new(snd.kWaveSawtooth)
 local noise = snd.synth.new(snd.kWaveNoise)
 local noise2 = snd.synth.new(snd.kWaveNoise)
+local noise3 = snd.synth.new(snd.kWaveNoise)   -- sweeps + boom tails
+local tri2 = snd.synth.new(snd.kWaveTriangle)  -- warble
 local beatSynth = snd.synth.new(snd.kWaveSquare)
 
 function Sfx.pew(freq)
@@ -33,18 +35,18 @@ end
 
 function Sfx.bigBoom()
     noise2:playNote(60, 0.5, 0.5)
-    Util.after(0.1, function() noise:playNote(90, 0.4, 0.3) end)
+    Util.after(0.1, function() noise3:playNote(90, 0.4, 0.3) end)
 end
 
 function Sfx.zapSweep()
     for i = 0, 6 do
-        Util.after(i * 0.05, function() noise:playNote(1800 - i * 230, 0.35, 0.05) end)
+        Util.after(i * 0.05, function() noise3:playNote(1800 - i * 230, 0.35, 0.05) end)
     end
 end
 
 function Sfx.warble()
     for i = 0, 4 do
-        Util.after(i * 0.04, function() tri:playNote(300 + i * 150, 0.25, 0.04) end)
+        Util.after(i * 0.04, function() tri2:playNote(300 + i * 150, 0.25, 0.04) end)
     end
 end
 

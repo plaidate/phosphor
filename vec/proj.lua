@@ -105,7 +105,12 @@ function Proj.mesh(verts, edges, pos, m, scale)
     end
     for i = 1, #edges - 1, 2 do
         local a, b = edges[i], edges[i + 1]
-        Proj.line(mx[a], my[a], mz[a], mx[b], my[b], mz[b])
+        -- guard: the scratch persists across calls, so an edge index
+        -- beyond this model's verts would silently draw a leftover
+        -- vertex from a previously drawn mesh
+        if a <= vi and b <= vi then
+            Proj.line(mx[a], my[a], mz[a], mx[b], my[b], mz[b])
+        end
     end
 end
 
