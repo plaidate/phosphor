@@ -3,5 +3,5 @@ author=Simon Frost
 description=Vector lunar landing. Crank the throttle, feather the descent.
 bundleID=com.sdwfrost.phosphor.touchdown
 version=0.1
-buildNumber=2
+buildNumber=3
 imagePath=launcher

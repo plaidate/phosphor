@@ -3,5 +3,5 @@ author=Simon Frost
 description=Vector canister defense. Raiders drag your fuel away; unlimited ships, finite fuel.
 bundleID=com.sdwfrost.phosphor.lifters
 version=0.1
-buildNumber=2
+buildNumber=3
 imagePath=launcher

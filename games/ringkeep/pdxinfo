@@ -3,5 +3,5 @@ author=Simon Frost
 description=Vector ring-fortress siege. Crack the shields, dodge the fireball, slay the core.
 bundleID=com.sdwfrost.phosphor.ringkeep
 version=0.1
-buildNumber=2
+buildNumber=3
 imagePath=launcher

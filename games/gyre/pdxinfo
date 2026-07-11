@@ -3,5 +3,5 @@ author=Simon Frost
 description=Vector orbit gunnery. Crank the ship around the rim, shoot the squadrons swooping out of the deep, warp planet to planet.
 bundleID=com.sdwfrost.phosphor.gyre
 version=0.1
-buildNumber=2
+buildNumber=3
 imagePath=launcher

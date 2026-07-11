@@ -3,5 +3,5 @@ author=Simon Frost
 description=Two ships, one hungry sun. Gravity duel to five rounds.
 bundleID=com.sdwfrost.phosphor.duelstar
 version=0.1
-buildNumber=2
+buildNumber=3
 imagePath=launcher

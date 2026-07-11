@@ -3,5 +3,5 @@ author=Simon Frost
 description=Gravity-thrust missions. Beam the fuel, blast the bunkers, outrun the reactor.
 bundleID=com.sdwfrost.phosphor.gravitywells
 version=0.1
-buildNumber=2
+buildNumber=3
 imagePath=launcher

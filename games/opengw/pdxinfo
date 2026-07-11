@@ -3,5 +3,5 @@ author=Simon Frost
 description=Twin-stick grid shooter. D-pad flies, crank aims, B bombs.
 bundleID=com.sdwfrost.phosphor.opengw
 version=0.1
-buildNumber=2
+buildNumber=3
 imagePath=launcher
